@@ -112,12 +112,13 @@ end
          mutatefn, #mutation function 
          selectfn # selection function
     )
+    
     best = result[1]
     @test best isa CLGA.Chromosome
-    @test best.genes[1] > 3.0
-    @test best.genes[1] < 4.0
-    @test best.genes[2] > 2.0
-    @test best.genes[2] < 3.0
+    @test best.genes[1] > 2.0
+    @test best.genes[1] < 5.0
+    @test best.genes[2] > 1.0
+    @test best.genes[2] < 4.0
 
     # Fine tuning
     finetuning_mutatefn = CLGA.makerandommutation(1.0,  #stddev
