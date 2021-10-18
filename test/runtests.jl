@@ -1,7 +1,8 @@
 using Test
+using DivPopGa
 
-@testset "First test" begin
-	@test 2 == 3
-end
+
+
+include("testclusteredga.jl")
 
 

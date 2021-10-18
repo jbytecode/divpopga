@@ -1,5 +1,7 @@
-module divpopga
+module DivPopGa
 
-greet() = print("Hello World!")
 
-end # module
+include("clusteredga.jl")
+
+
+end 
