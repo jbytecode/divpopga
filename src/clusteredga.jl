@@ -69,7 +69,7 @@ function randommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, muta
     newgenes = copy(ch.genes)
     for i in 1:length(length(newgenes))
         if rand() < mutationprob
-            newgenes[i] += lower[i] + randn() * (upper[i] - lower[i])
+            newgenes[i] = lower[i] + randn() * (upper[i] - lower[i])
         end 
     end 
     return Chromosome(

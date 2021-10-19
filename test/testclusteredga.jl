@@ -81,6 +81,7 @@ end
     mutatefn = CLGA.makerandommutation(lower, upper, 0.50)
 
     newch = mutatefn(ch)
+    
 
     @test newch isa CLGA.Chromosome
     @test all(x -> x == 1,  newch.genes .<= upper)
