@@ -76,6 +76,7 @@ end
 @testset "Random mutation (within range)" begin
     lower = [0.0, 0.0, 0.0, 0.0]
     upper = [9.0, 9.0, 9.0, 9.0]
+    
     ch = CLGA.Chromosome(lower, upper)
     
     mutatefn = CLGA.makerandommutation(lower, upper, 0.50)
