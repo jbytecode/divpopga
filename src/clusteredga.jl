@@ -3,6 +3,10 @@ module ClusteredGa
 using StatsBase
 using Clustering
 
+const GA_TYPE_CLUSTER = 0
+const GA_TYPE_CLUSTER_SIM = 1
+const GA_TYPE_CLASSIC = 2
+
 mutable struct Chromosome 
     genes::Array{Float64, 1}
     cost::Float64
@@ -39,7 +43,7 @@ function makelinearcrossover(costfn::Function)::Function
     return tmpfn
 end
 
-function randommutation(stddev::Float64, mutationprob::Float64, ch::Chromosome)::Chromosome
+function normalmutation(stddev::Float64, mutationprob::Float64, ch::Chromosome)::Chromosome
     newgenes = copy(ch.genes)
     for i in 1:length(length(newgenes))
         if rand() < mutationprob
@@ -53,17 +57,34 @@ function randommutation(stddev::Float64, mutationprob::Float64, ch::Chromosome):
     )
 end
 
-function makerandommutation(stddev::Float64, mutationprob::Float64)::Function 
+function makenormalmutation(stddev::Float64, mutationprob::Float64)::Function 
     function tmpfn(ch::Chromosome)::Chromosome 
-        return randommutation(stddev, mutationprob, ch)
+        return normalmutation(stddev, mutationprob, ch)
     end
     return tmpfn 
 end
 
-#=
-Takes an array of chromosomes
-and returns two chromosomes
-=#
+
+function randommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, mutationprob::Float64, ch::Chromosome)::Chromosome
+    newgenes = copy(ch.genes)
+    for i in 1:length(length(newgenes))
+        if rand() < mutationprob
+            newgenes[i] += lower[i] + randn() * (upper[i] - lower[i])
+        end 
+    end 
+    return Chromosome(
+        newgenes, 
+        Inf64,
+        -1
+    )
+end
+
+function makerandommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, mutationprob::Float64)::Function
+    function tmpfn(ch::Chromosome)::Chromosome 
+        return randommutation(lower, upper, mutationprob, ch)
+    end
+end
+
 function tournamentselection(pop::Array{Chromosome, 1}, k::Int)::Array{Chromosome, 1}
     fathers = sort(sample(pop, k, replace = false), by = ch -> ch.cost)
     mothers = sort(sample(pop, k, replace = false), by = ch -> ch.cost)
@@ -75,6 +96,29 @@ function maketournamentselection(k::Int)::Function
         return tournamentselection(pop, k)
     end
 end
+
+function distance(ch1::Chromosome, ch2::Chromosome)::Float64
+    (ch1.genes .- ch2.genes) .|> (x -> x * x) |> sum  
+end
+
+function simulatedkmeanstournamentselection(pop::Array{Chromosome, 1}, k::Int)::Array{Chromosome, 1}
+    fathers = sort(sample(pop, k, replace = false), by = ch -> ch.cost)
+    mothers = sort(sample(pop, k, replace = false), by = ch -> ch.cost)
+    
+    thefather = fathers[1]
+    distances = map(ch -> distance(thefather, ch), mothers)
+    furthestindice = distances |> sortperm |> last 
+    themother = mothers[furthestindice]
+
+    return [thefather, themother]
+end
+
+function makesimulatedkmeanstournamentselection(k::Int)::Function
+    function tmpfn(pop::Array{Chromosome, 1})::Array{Chromosome, 1}
+        return simulatedkmeanstournamentselection(pop, k)
+    end
+end
+
 
 function kmeanstournamentselection(pop::Array{Chromosome, 1}, k::Int)::Array{Chromosome, 1}
     father = sort(sample(pop, k, replace = false), by = ch -> ch.cost)[1]
@@ -126,11 +170,18 @@ end
 
 function generation(
     population::Array{Chromosome, 1}, costfn::Function, crossfn::Function, 
-    mutatefn::Function, selectfn::Function)::Array{Chromosome, 1}
+    mutatefn::Function, gatype::Int)::Array{Chromosome, 1}
 
     popsize = length(population)
     calculatefitness(population, costfn)
-    assignclusterids(population)
+    if gatype == GA_TYPE_CLUSTER
+        assignclusterids(population)
+        selectfn = makekmeanstournamentselection(3)
+    elseif  gatype == GA_TYPE_CLASSIC
+        selectfn = maketournamentselection(3)
+    elseif gatype == GA_TYPE_CLUSTER_SIM
+        selectfn = makesimulatedkmeanstournamentselection(3)
+    end
     newpop = Array{Chromosome, 1}(undef, 0)
     for i in 1:popsize 
         father, mother = selectfn(population)
@@ -142,12 +193,12 @@ end
 
 function ga(
     popsize::Int, generations::Int, lower::Array{Float64, 1}, upper::Array{Float64, 1},
-    costfn::Function, crossfn::Function, mutatefn::Function, selectfn::Function)
+    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int)
 
     population = randompopulation(popsize, lower, upper)
     
     for iter in 1:generations 
-        population = generation(population, costfn, crossfn, mutatefn, selectfn)
+        population = generation(population, costfn, crossfn, mutatefn, gatype)
     end 
 
     calculatefitness(population, costfn)
