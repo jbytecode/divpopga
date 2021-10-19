@@ -123,6 +123,9 @@ end
 function kmeanstournamentselection(pop::Array{Chromosome, 1}, k::Int)::Array{Chromosome, 1}
     father = sort(sample(pop, k, replace = false), by = ch -> ch.cost)[1]
     mothers = filter(ch -> ch.clusterid != father.clusterid, pop)
+    if length(mothers) == 0
+        mothers = pop
+    end
     mother = sort(sample(mothers, k, replace = true), by = ch -> ch.cost)[1]
     return [father, mother]
 end
