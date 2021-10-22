@@ -173,7 +173,7 @@ end
 
 function generation(
     population::Array{Chromosome, 1}, costfn::Function, crossfn::Function, 
-    mutatefn::Function, gatype::Int)::Array{Chromosome, 1}
+    mutatefn::Function, gatype::Int; elitism::Int = 0)::Array{Chromosome, 1}
 
     popsize = length(population)
     calculatefitness(population, costfn)
@@ -186,7 +186,15 @@ function generation(
         selectfn = makesimulatedkmeanstournamentselection(3)
     end
     newpop = Array{Chromosome, 1}(undef, 0)
-    for i in 1:popsize 
+    
+    if elitism > 0
+        sort!(population, by = ch -> ch.cost)
+        for i in 1:elitism
+            push!(newpop, population[i])
+        end    
+    end
+    
+    for i in (elitism + 1):popsize 
         father, mother = selectfn(population)
         offspring = mutatefn(crossfn(father, mother))
         push!(newpop, offspring)
@@ -196,12 +204,12 @@ end
 
 function ga(
     popsize::Int, generations::Int, lower::Array{Float64, 1}, upper::Array{Float64, 1},
-    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int)
+    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; elitism::Int = 0)
 
     population = randompopulation(popsize, lower, upper)
     
     for iter in 1:generations 
-        population = generation(population, costfn, crossfn, mutatefn, gatype)
+        population = generation(population, costfn, crossfn, mutatefn, gatype, elitism = elitism)
     end 
 
     calculatefitness(population, costfn)

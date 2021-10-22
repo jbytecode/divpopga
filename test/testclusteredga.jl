@@ -272,5 +272,38 @@ end
 
 
 
+@testset "Pi and E with Kmeans clustering GA - with elitism" begin
+    function costfn(vals)
+        return abs(vals[1] - 3.141592) + abs(vals[2] - 2.71828)
+    end 
+    crossfn = CLGA.makelinearcrossover(costfn)
+    mutatefn = CLGA.makenormalmutation(10.0,  #stddev
+                                      0.10   #mutation prob
+    )
+    result = CLGA.ga(
+        100, # popsize
+        500, # generations 
+        [-100.0, -100.0], #lower
+        [100.0, 100.0],   #upper
+         costfn, #costfunction 
+         crossfn, #crossoverfunction 
+         mutatefn, #mutation function 
+         CLGA.GA_TYPE_CLUSTER, # cluster based selection
+         elitism = 1
+    )
+    
+    best = result[1]
+    @info best
+    
+    @test best isa CLGA.Chromosome
+    @test best.genes[1] > 2.0
+    @test best.genes[1] < 5.0
+    @test best.genes[2] > 1.0
+    @test best.genes[2] < 4.0
+
+    
+end
+
+
 
 
