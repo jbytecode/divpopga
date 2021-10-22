@@ -23,9 +23,9 @@ function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
 end
 
 function linearcrossover(costfn::Function, ch1::Chromosome, ch2::Chromosome)::Chromosome
-    genes1 = 0.5 * ch1.genes .+ 0.5 * ch2.genes 
-    genes2 = 1.5 * ch1.genes .- 0.5 * ch2.genes 
-    genes3 = 1.5 * ch2.genes .- 0.5 * ch1.genes 
+    genes1 = 0.5 .* ch1.genes .+ 0.5 .* ch2.genes 
+    genes2 = 1.5 .* ch1.genes .- 0.5 .* ch2.genes 
+    genes3 = 1.5 .* ch2.genes .- 0.5 .* ch1.genes 
     allgenes = [genes1, genes2, genes3]
     costs = map(costfn, allgenes)
     bestindice = costs |> sortperm |> first
