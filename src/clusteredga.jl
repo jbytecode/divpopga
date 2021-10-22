@@ -22,6 +22,23 @@ function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
     )
 end
 
+function weightedcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
+    alpha = rand()
+    genes = alpha * ch1.genes + (1.0 - alpha) * ch2.genes 
+    return Chromosome(
+        genes, 
+        Inf64, 
+        -1
+    )
+end
+
+function makeweightedcrossover()::Function 
+    function tempfn(ch1::Chromosome, ch2::Chromosome)
+        return weightedcrossover(ch1, ch2)
+    end
+    return tempfn 
+end
+
 function linearcrossover(costfn::Function, ch1::Chromosome, ch2::Chromosome)::Chromosome
     genes1 = 0.5 .* ch1.genes .+ 0.5 .* ch2.genes 
     genes2 = 1.5 .* ch1.genes .- 0.5 .* ch2.genes 

@@ -21,6 +21,36 @@ end
     @test d == 3.0
 end
 
+@testset "Weighted Crossover" begin
+    ch1 = CLGA.Chromosome(
+        [1.0, 2.0],           # genes 
+        Inf64,                # cost 
+        -1                    # cluster id
+    )
+
+    ch2 = CLGA.Chromosome(
+        [10.0, 20.0],
+        Inf64,
+        -1
+    )
+
+    crossfn = CLGA.makeweightedcrossover()
+
+    child1 = crossfn(ch1, ch2)
+    child2 = crossfn(ch2, ch1)
+
+    @test child1.genes[1] <= 10.0
+    @test child1.genes[2] <= 20.0
+    @test child1.genes[1] >= 1.0
+    @test child1.genes[2] >= 2.0
+    
+    @test child2.genes[1] <= 10.0
+    @test child2.genes[2] <= 20.0
+    @test child2.genes[1] >= 1.0
+    @test child2.genes[2] >= 2.0
+end
+
+
 @testset "Linear Crossover" begin
     ch1 = CLGA.Chromosome(
         [1.0, 2.0],           # genes 
