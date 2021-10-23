@@ -3,6 +3,8 @@ module ClusteredGa
 using StatsBase
 using Clustering
 
+import Base.Threads
+
 const GA_TYPE_CLUSTER = 0
 const GA_TYPE_CLUSTER_SIM = 1
 const GA_TYPE_CLASSIC = 2
@@ -24,7 +26,7 @@ end
 
 function weightedcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
     alpha = rand()
-    genes = alpha * ch1.genes + (1.0 - alpha) * ch2.genes 
+    genes = alpha * ch1.genes .+ (1.0 - alpha) * ch2.genes 
     return Chromosome(
         genes, 
         Inf64, 
@@ -162,7 +164,7 @@ function randompopulation(popsize::Int, lower::Array{Float64, 1}, upper::Array{F
 end
 
 function calculatefitness(population::Array{Chromosome, 1}, costfn::Function)
-    for ch in population
+    Threads.@threads for ch in population
         ch.cost = costfn(ch.genes)
     end
 end
@@ -211,7 +213,7 @@ function generation(
         end    
     end
     
-    for i in (elitism + 1):popsize 
+    for _ in (elitism + 1):popsize 
         father, mother = selectfn(population)
         offspring = mutatefn(crossfn(father, mother))
         push!(newpop, offspring)
@@ -225,7 +227,7 @@ function ga(
 
     population = randompopulation(popsize, lower, upper)
     
-    for iter in 1:generations 
+    for _ in 1:generations 
         population = generation(population, costfn, crossfn, mutatefn, gatype, elitism = elitism)
     end 
 
