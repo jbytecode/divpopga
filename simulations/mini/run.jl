@@ -3,25 +3,29 @@ using DataFrames
 using CSV
 include("lib.jl")
 
+println("Starting... Number of threads: $(Threads.nthreads())")
+
 # SIMULATION SETTINGS
-popsize = 50
-generation = 100
-mutationParameter1 = 3.0
-mutationParameter2 = 0.01
-num_elitists = 2
-num_simulations = 1000
-num_variables = [2, 10, 25, 100]
-costfns = ["ackley", "griewank", "rastrigin", "schwefel"]
+const popsize = 50
+const generations = 100
+const mutationParameter1 = 3.0
+const mutationParameter2 = 0.01
+const num_elitists = 2
+const num_simulations = 1000
+const num_variables = [2, 10, 25, 100]
+const costfns = [fun_ackley, fun_griewank, fun_rastrigin, fun_schwefel]
+const lowers = [lower_ackley, lower_griewank, lower_rastrigin, lower_schwefel]
+const uppers = [upper_ackley, upper_griewank, upper_rastrigin, upper_schwefel]
+const bests = [best_ackley, best_griewank, best_rastrigin, best_schwefel]
 global resultSet = DataFrame()
 # END
 
-for myFun in costfns, numV in num_variables, numS in 1:num_simulations
+for myFun in 1:length(costfns), numV in num_variables, numS in 1:num_simulations
     
-    println("--> FUN:",myFun," VAR:",numV," SIM:",numS)
+    @info "new iteration" costfns[myFun] numV numS
 
     # THE FUNCTIONS
-    costfn = functionLoader(myFun)
-    costfn = @eval $costfn
+    costfn = costfns[myFun]
     crossfn = CLGA.makelinearcrossover(costfn)
     mutatefn  = CLGA.makenormalmutation(mutationParameter1, mutationParameter2)
     # END
@@ -30,8 +34,8 @@ for myFun in costfns, numV in num_variables, numS in 1:num_simulations
     res_ga = CLGA.ga(
         popsize,
         generations,
-        lower,      
-        upper,      
+        repeat([lowers[myFun]], outer=numV),      
+        repeat([uppers[myFun]], outer=numV),      
         costfn,     
         crossfn,    
         mutatefn,   
@@ -42,8 +46,8 @@ for myFun in costfns, numV in num_variables, numS in 1:num_simulations
     res_kmeans = CLGA.ga(
         popsize,    
         generations,
-        lower,      
-        upper,      
+        repeat([lowers[myFun]], outer=numV),      
+        repeat([uppers[myFun]], outer=numV),      
         costfn,     
         crossfn,    
         mutatefn,   
@@ -54,8 +58,8 @@ for myFun in costfns, numV in num_variables, numS in 1:num_simulations
     res_kmeanssim = CLGA.ga(
         popsize,    
         generations,
-        lower,      
-        upper,      
+        repeat([lowers[myFun]], outer=numV),      
+        repeat([uppers[myFun]], outer=numV),      
         costfn,     
         crossfn,    
         mutatefn,   
@@ -65,15 +69,18 @@ for myFun in costfns, numV in num_variables, numS in 1:num_simulations
     global resultSet = append!(resultSet, DataFrame(
         fun = myFun,
         popsize = popsize,
-        generation = generation,
+        generations = generations,
         num_elitists = num_elitists,
         numV = numV,
         numS = numS,
-        res_ga = res_ga,
-        res_kmeans = res_kmeans,
-        res_kmeanssim = res_kmeanssim
+        res_ga = round(res_ga[1].cost, digits=4),
+        res_ga_norm = round(abs(bests[myFun] - res_ga[1].cost), digits=4),
+        res_kmeans = round(res_kmeans[1].cost, digits=4),
+        res_kmeans_norm = round(abs(bests[myFun] - res_kmeans[1].cost), digits=4),
+        res_kmeanssim = round(res_kmeanssim[1].cost, digits=4),
+        res_kmeanssim_norm = round(abs(bests[myFun] - res_kmeanssim[1].cost), digits=4)
     ))
 
 end
 
-CSV.write("test.csv", resultSet)
+CSV.write("resultSet.csv", resultSet, delim=";")

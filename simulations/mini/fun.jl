@@ -2,6 +2,9 @@
 # https://www.sfu.ca/~ssurjano/schwef.html
 # [-500, 500]
 # 420.9687* => 0
+const lower_schwefel = -500.0
+const upper_schwefel = 500.0
+const best_schwefel = 0.0
 function fun_schwefel(xx::Vector{Float64})
     d = length(xx)
 	
@@ -18,6 +21,9 @@ end
 # https://www.sfu.ca/~ssurjano/rastr.html
 # [-5.12, 5.12]
 # 0* => 0
+const lower_rastrigin = -5.12
+const upper_rastrigin = 5.12
+const best_rastrigin = 0.0
 function fun_rastrigin(xx)
     d = length(xx)
 	
@@ -34,6 +40,9 @@ end
 # https://www.sfu.ca/~ssurjano/griewank.html
 # [-600, 600]
 # 0* => 0
+const lower_griewank = -600.0
+const upper_griewank = 600.0
+const best_griewank = 0.0
 function fun_griewank(xx)
     d = length(xx)
     ii = 1:d
@@ -56,6 +65,9 @@ end
 # https://www.sfu.ca/~ssurjano/ackley.html
 # [-32.768, 32.768]
 # 0* => 0
+const lower_ackley = -32.768
+const upper_ackley = 32.768
+const best_ackley = 0.0
 function fun_ackley(xx)
     d = length(xx)
     a = 20
