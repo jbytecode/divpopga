@@ -223,9 +223,13 @@ end
 
 function ga(
     popsize::Int, generations::Int, lower::Array{Float64, 1}, upper::Array{Float64, 1},
-    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; elitism::Int = 0)
+    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; elitism::Int = 0, initialpopulation = nothing)
 
-    population = randompopulation(popsize, lower, upper)
+    if isnothing(initialpopulation)
+        population = randompopulation(popsize, lower, upper)
+    else
+        population = initialpopulation
+    end 
     
     for _ in 1:generations 
         population = generation(population, costfn, crossfn, mutatefn, gatype, elitism = elitism)
