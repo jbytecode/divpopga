@@ -15,8 +15,9 @@ mutable struct Chromosome
     clusterid::Int
 end
 
-function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
-    genes = lower .+ rand(length(lower)) .* (upper .- lower)
+# Create chromosome with given genes, cost of Infinity,
+# and cluster id of -1.
+function Chromosome(genes::Array{Float64, 1})
     return Chromosome(
         genes, 
         Inf64,
@@ -24,14 +25,15 @@ function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
     )
 end
 
+function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
+    genes = lower .+ rand(length(lower)) .* (upper .- lower)
+    return Chromosome(genes)
+end
+
 function weightedcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
     alpha = rand()
     genes = alpha * ch1.genes .+ (1.0 - alpha) * ch2.genes 
-    return Chromosome(
-        genes, 
-        Inf64, 
-        -1
-    )
+    return Chromosome(genes)
 end
 
 function makeweightedcrossover()::Function 
@@ -69,11 +71,7 @@ function normalmutation(stddev::Float64, mutationprob::Float64, ch::Chromosome):
             newgenes[i] += randn() * stddev
         end 
     end 
-    return Chromosome(
-        newgenes, 
-        Inf64,
-        -1
-    )
+    return Chromosome(newgenes)
 end
 
 function makenormalmutation(stddev::Float64, mutationprob::Float64)::Function 
@@ -91,11 +89,7 @@ function randommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, muta
             newgenes[i] = lower[i] + rand() * (upper[i] - lower[i])
         end 
     end 
-    return Chromosome(
-        newgenes, 
-        Inf64,
-        -1
-    )
+    return Chromosome(newgenes)
 end
 
 function makerandommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, mutationprob::Float64)::Function
