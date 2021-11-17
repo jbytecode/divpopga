@@ -30,6 +30,25 @@ function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
     return Chromosome(genes)
 end
 
+function uniformcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
+    L = length(ch1.genes)
+    offspring = Chromosome(zeros(Float64, L))
+    for i in 1:L
+        if rand() < 0.5
+            offspring.genes[i] = ch1.genes[i]
+        else
+            offspring.genes[i] = ch2.genes[i]
+    end
+    return offspring
+end
+
+function makeuniformcrossover()::Function 
+    function tempfn(ch1::Chromosome, ch2::Chromosome)
+        return uniformcrossover(ch1, ch2)
+    end
+    return tempfn 
+end
+
 function weightedcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
     alpha = rand()
     genes = alpha * ch1.genes .+ (1.0 - alpha) * ch2.genes 

@@ -30,6 +30,21 @@ end
     @test d == 3.0
 end
 
+@testset "Uniform crossover" begin
+    ch1 = CLGA.Chromosome([1.0, 2.0, 3.0])
+    ch2 = CLGA.Chromosome[[10.0, 20.0, 30.0]]
+
+    crossfn = CLGA.makeuniformcrossover()
+
+    child1 = crossfn(ch1, ch2)
+
+    @test child1.genes[0] in [1.0, 10.0]
+    @test child1.genes[1] in [2.0, 20.0]
+    @test child1.genes[2] in [3.0, 30.0]
+    @test isinf(child1.cost)
+    @test child1.clusterid == -1
+end
+
 @testset "Weighted Crossover" begin
     ch1 = CLGA.Chromosome(
         [1.0, 2.0],           # genes 
