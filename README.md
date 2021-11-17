@@ -7,6 +7,20 @@ Diverse Population Genetic Algorithm for Real-valued Optimization
 ] add https://github.com/jbytecode/divpopga
 ```
 
+# Update
+
+```julia
+] update
+```
+
+or
+
+```julia
+julia> using Pkg
+julia> Pkg.update()
+```
+
+
 # Examples
 
 See https://github.com/jbytecode/divpopga/tree/main/example
