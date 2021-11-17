@@ -6,6 +6,12 @@ Diverse Population Genetic Algorithm for Real-valued Optimization
 ```julia
 ] add https://github.com/jbytecode/divpopga
 ```
+or 
+
+```julia
+julia> using Pkg
+julia> julia> Pkg.add(PackageSpec(url = "https://github.com/jbytecode/divpopga"))
+```
 
 # Update
 
