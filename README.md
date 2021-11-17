@@ -10,7 +10,7 @@ or
 
 ```julia
 julia> using Pkg
-julia> julia> Pkg.add(PackageSpec(url = "https://github.com/jbytecode/divpopga"))
+julia> Pkg.add(PackageSpec(url = "https://github.com/jbytecode/divpopga"))
 ```
 
 # Update
