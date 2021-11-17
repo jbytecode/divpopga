@@ -2,6 +2,15 @@ using Test
 
 import DivPopGa.ClusteredGa as CLGA
 
+@testset "Chromosome constructor with genes" begin
+    genes = zeros(Float64, 10)
+    c = CLGA.Chromosome(genes)
+
+    @test length(c.genes) == 10
+    @test c.clusterid == -1
+    @test isinf(c.cost)
+end
+
 @testset "Create Chromosome" begin
     lower = [0.0, 1.0, 2.0, 3.0, 5.0]
     upper = [1.0, 2.0, 3.0, 4.0, 6.0]
