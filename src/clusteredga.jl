@@ -84,6 +84,29 @@ function makelinearcrossover(costfn::Function)::Function
     return tmpfn
 end
 
+function blxalphacrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
+    L = length(ch1.genes)
+    offspring = Chromosome(zeros(Float64, L))
+    for i in 1:L
+        d = abs(ch1.genes[i] - ch2.genes[i])
+        alpha = rand()
+        ad = d * alpha 
+        umin = min(ch1.genes[i], ch2.genes[i]) - ad
+        umax = max(ch1.genes[i], ch2.genes[i]) + ad 
+        u = umin + rand() * (umax - umin)
+        offspring.genes[i] = u
+    end
+    return offspring
+end
+
+function makeblxalphacrossover()::Function 
+    function tmpfn(ch1::Chromosome, ch2::Chromosome)::Chromosome
+        return blxalphacrossover(ch1, ch2)
+    end
+    return tmpfn
+end
+
+
 function normalmutation(stddev::Float64, mutationprob::Float64, ch::Chromosome)::Chromosome
     newgenes = copy(ch.genes)
     for i in 1:length(length(newgenes))

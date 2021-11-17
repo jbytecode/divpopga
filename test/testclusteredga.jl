@@ -347,7 +347,6 @@ end
     )
     
     best = result[1]
-    @info best
     
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
@@ -392,11 +391,51 @@ end
          initialpopulation = result
     )
     best = result_classical[1]
-    @info best
     
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
     @test best.genes[1] < 5.0
     @test best.genes[2] > 1.0
     @test best.genes[2] < 4.0
+end
+
+
+
+
+
+
+@testset "Pi and E with classical FPGA and BLX-alpha crossover" begin
+    function costfn(vals)
+        return abs(vals[1] - 3.141592) + abs(vals[2] - 2.71828)
+    end 
+    crossfn = CLGA.makeblxalphacrossover()
+    mutatefn = CLGA.makenormalmutation(10.0,  #stddev
+                                      0.10   #mutation prob
+    )
+    result = CLGA.ga(
+        100, # popsize
+        500, # generations 
+        [-100.0, -100.0], #lower
+        [100.0, 100.0],   #upper
+         costfn, #costfunction 
+         crossfn, #crossoverfunction 
+         mutatefn, #mutation function 
+         CLGA.GA_TYPE_CLASSIC # classical selection
+    )
+    
+    best = result[1]
+    @test best isa CLGA.Chromosome
+    @test best.genes[1] > 2.0
+    @test best.genes[1] < 5.0
+    @test best.genes[2] > 1.0
+    @test best.genes[2] < 4.0
+
+   
+    @test best isa CLGA.Chromosome
+    @test best.genes[1] > 3.0  # 3.141592
+    @test best.genes[1] < 3.3
+    @test best.genes[2] > 2.6  # 2.71828
+    @test best.genes[2] < 2.9
+
+    @info best
 end
