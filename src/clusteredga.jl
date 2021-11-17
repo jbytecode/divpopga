@@ -38,6 +38,7 @@ function uniformcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
             offspring.genes[i] = ch1.genes[i]
         else
             offspring.genes[i] = ch2.genes[i]
+        end
     end
     return offspring
 end
