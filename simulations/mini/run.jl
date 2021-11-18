@@ -1,6 +1,3 @@
-import DivPopGa.ClusteredGa as CLGA
-using DataFrames
-using CSV
 include("lib.jl")
 
 println("Starting... Number of threads: $(Threads.nthreads())")
@@ -73,14 +70,50 @@ for myFun in 1:length(costfns), numV in num_variables, numS in 1:num_simulations
         num_elitists = num_elitists,
         numV = numV,
         numS = numS,
-        res_ga = round(res_ga[1].cost, digits=4),
-        res_ga_norm = round(abs(bests[myFun] - res_ga[1].cost), digits=4),
-        res_kmeans = round(res_kmeans[1].cost, digits=4),
-        res_kmeans_norm = round(abs(bests[myFun] - res_kmeans[1].cost), digits=4),
-        res_kmeanssim = round(res_kmeanssim[1].cost, digits=4),
-        res_kmeanssim_norm = round(abs(bests[myFun] - res_kmeanssim[1].cost), digits=4)
+        res_ga = res_ga[1].cost,
+        res_ga_norm = abs(bests[myFun] - res_ga[1].cost),
+        res_kmeans = res_kmeans[1].cost,
+        res_kmeans_norm = abs(bests[myFun] - res_kmeans[1].cost),
+        res_kmeanssim = res_kmeanssim[1].cost,
+        res_kmeanssim_norm = abs(bests[myFun] - res_kmeanssim[1].cost)
     ))
 
 end
 
+@info "Simulation is completed."
+
+# SAVING RESULTS
+@info "Saving results in resultSet.csv..."
 CSV.write("resultSet.csv", resultSet, delim=";")
+
+
+# STATISTICAL ANALYSIS
+@info "Starting statistical analysis..."
+global tempResultSet = DataFrame()
+global statistics = DataFrame()
+for myFun in 1:length(costfns), numV in num_variables
+
+    global tempResultSet = filter(row -> row.fun == myFun && row.numV == numV, resultSet)
+
+    global statistics = append!(statistics, DataFrame(
+        fun = myFun,
+        numV = numV,
+        mean_ga = mean(tempResultSet[!,"res_ga"]),
+        median_ga = median(tempResultSet[!,"res_ga"]),
+        mean_kmeans = mean(tempResultSet[!,"res_kmeans"]),
+        median_kmeans = median(tempResultSet[!,"res_kmeans"]),
+        mean_kmeanssim = mean(tempResultSet[!,"res_kmeanssim"]),
+        median_kmeanssim = median(tempResultSet[!,"res_kmeanssim"]),
+        p_ga_kmeans = round(pvalue(MannWhitneyUTest(tempResultSet[!,"res_ga"], tempResultSet[!,"res_kmeans"])), digits=4),
+        p_ga_kmeanssim = round(pvalue(MannWhitneyUTest(tempResultSet[!,"res_ga"], tempResultSet[!,"res_kmeanssim"])), digits=4),
+        p_kmeans_kmeanssim = round(pvalue(MannWhitneyUTest(tempResultSet[!,"res_kmeans"], tempResultSet[!,"res_kmeanssim"])), digits=4)
+    ))
+
+end
+
+# SAVING RESULTS
+@info "Saving statistical results in statistics.csv..."
+CSV.write("statistics.csv", statistics, delim=";")
+
+
+@info "Done."
