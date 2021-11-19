@@ -1,8 +1,9 @@
 name = "DivPopGa"
 uuid = "a4c80959-a5cc-429a-be3b-2deb7248a9c4"
 authors = ["jbytecode <mhsatman@gmail.com>"]
-version = "0.1.8"
+version = "0.1.9"
 
 [deps]
 Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"

@@ -4,5 +4,6 @@ using DivPopGa
 
 
 include("testclusteredga.jl")
+include("testsummary.jl")
 
 
