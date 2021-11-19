@@ -277,4 +277,26 @@ function ga(
     return population
 end
 
+
+
+function hybridga(popsize::Int, generations::Array{Int, 1}, lower::Array{Float64, 1}, upper::Array{Float64, 1},
+    costfn::Function, crossfn::Function, mutatefn::Function; elitism::Int = 0)
+
+    population = randompopulation(popsize, lower, upper)
+
+    for _ in 1:generations[1] 
+        population = generation(population, costfn, crossfn, mutatefn, GA_TYPE_CLUSTER, elitism = elitism)
+    end 
+
+    for _ in 1:generations[2] 
+        population = generation(population, costfn, crossfn, mutatefn, GA_TYPE_CLASSIC, elitism = elitism)
+    end 
+
+    calculatefitness(population, costfn)
+    sort!(population, by = ch -> ch.cost)
+    return population
+end
+
+
+
 end # end of module ClusteredGa

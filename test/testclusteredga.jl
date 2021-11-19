@@ -439,3 +439,34 @@ end
 
     @info best
 end
+
+
+
+
+@testset "hybridga() - pi and e" begin
+    function costfn(vals)
+        return abs(vals[1] - 3.141592) + abs(vals[2] - 2.71828)
+    end 
+    crossfn = CLGA.makelinearcrossover(costfn)
+    mutatefn = CLGA.makenormalmutation(10.0,  #stddev
+                                      0.10   #mutation prob
+    )
+    result = CLGA.hybridga(
+        100, # popsize
+        [500, 500], # generations (500 for kmeans, 500 for classical) 
+        [-100.0, -100.0], #lower
+        [100.0, 100.0],   #upper
+         costfn, #costfunction 
+         crossfn, #crossoverfunction 
+         mutatefn, #mutation function 
+         elitism = 1
+    )
+    
+    best = result[1]
+    @test best isa CLGA.Chromosome
+    @test best.genes[1] > 2.0
+    @test best.genes[1] < 5.0
+    @test best.genes[2] > 1.0
+    @test best.genes[2] < 4.0
+    @info best
+end
