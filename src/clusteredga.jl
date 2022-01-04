@@ -26,7 +26,11 @@ function Chromosome(genes::Array{Float64, 1})
 end
 
 function Chromosome(lower::Array{Float64, 1}, upper::Array{Float64, 1})
-    genes = lower .+ rand(length(lower)) .* (upper .- lower)
+    L = length(lower)
+    genes = zeros(Float64, L)
+    for i in 1:L
+        genes[i] = lower[i] + rand() * (upper[i] - lower[i])
+    end
     return Chromosome(genes)
 end
 
