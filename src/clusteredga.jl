@@ -52,7 +52,7 @@ end
 
 function weightedcrossover(ch1::Chromosome, ch2::Chromosome)::Chromosome
     alpha = rand()
-    genes = alpha * ch1.genes .+ (1.0 - alpha) * ch2.genes 
+    genes = alpha .* ch1.genes .+ (1.0 - alpha) .* ch2.genes 
     return Chromosome(genes)
 end
 
