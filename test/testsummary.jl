@@ -23,7 +23,7 @@ import DivPopGa.Summary as Summary
          CLGA.GA_TYPE_CLASSIC # classical selection
     )
 
-    s = Summary.summary(result)
+    s = Summary.summary(result.population)
 
     @test s isa Dict
     @test s["min_cost"] <= s["q25_cost"]

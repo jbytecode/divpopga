@@ -192,21 +192,23 @@ end
         return abs(vals[1] - 3.141592) + abs(vals[2] - 2.71828)
     end 
     crossfn = CLGA.makelinearcrossover(costfn)
-    mutatefn = CLGA.makenormalmutation(10.0,  #stddev
-                                      0.10   #mutation prob
-    )
+    lower = [-10.0, -10.0]
+    upper = [10.0, 10.0]
+    mutatefn = CLGA.makerandommutation(lower, upper, 0.1)
     result = CLGA.ga(
         100, # popsize
-        500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        10000, # generations 
+        lower, #lower
+        upper,   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
-         CLGA.GA_TYPE_CLASSIC # classical selection
+         CLGA.GA_TYPE_CLASSIC, # classical selection
+         verbose = true
     )
-    
-    best = result[1]
+    @test result isa CLGA.GAResult
+
+    best = result.best 
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
     @test best.genes[1] < 5.0
@@ -217,7 +219,7 @@ end
     finetuning_mutatefn = CLGA.makenormalmutation(1.0,  #stddev
                                                  0.05   #mutation prob
     )
-    pop = result 
+    pop = result.population 
     for i in 1:500
         pop = CLGA.generation(pop, costfn, crossfn, finetuning_mutatefn, CLGA.GA_TYPE_CLASSIC)
     end
@@ -239,21 +241,21 @@ end
         return abs(vals[1] - 3.141592) + abs(vals[2] - 2.71828)
     end 
     crossfn = CLGA.makelinearcrossover(costfn)
-    mutatefn = CLGA.makenormalmutation(10.0,  #stddev
-                                      0.10   #mutation prob
-    )
+    lower = [-10.0, -10.0]
+    upper = [10.0, 10.0]
+    mutatefn = CLGA.makerandommutation(lower, upper, 0.1)
     result = CLGA.ga(
         100, # popsize
-        500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        10000, # generations 
+        lower, #lower
+        upper,   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
          CLGA.GA_TYPE_CLUSTER_SIM # simulated kmeans selection
     )
     
-    best = result[1]
+    best = result.best
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
     @test best.genes[1] < 5.0
@@ -264,7 +266,7 @@ end
     finetuning_mutatefn = CLGA.makenormalmutation(1.0,  #stddev
                                                  0.05   #mutation prob
     )
-    pop = result 
+    pop = result.population 
     for i in 1:500
         pop = CLGA.generation(pop, costfn, crossfn, finetuning_mutatefn, CLGA.GA_TYPE_CLUSTER_SIM)
     end
@@ -291,15 +293,15 @@ end
     result = CLGA.ga(
         100, # popsize
         500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
          CLGA.GA_TYPE_CLUSTER # cluster based selection
     )
     
-    best = result[1]
+    best = result.best
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
     @test best.genes[1] < 5.0
@@ -310,7 +312,7 @@ end
     finetuning_mutatefn = CLGA.makenormalmutation(1.0,  #stddev
                                                  0.05   #mutation prob
     )
-    pop = result 
+    pop = result.population 
     for i in 1:500
         pop = CLGA.generation(pop, costfn, crossfn, finetuning_mutatefn, CLGA.GA_TYPE_CLUSTER)
     end
@@ -337,8 +339,8 @@ end
     result = CLGA.ga(
         100, # popsize
         500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
@@ -346,7 +348,7 @@ end
          elitism = 1
     )
     
-    best = result[1]
+    best = result.best
     
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
@@ -368,9 +370,9 @@ end
     )
     result = CLGA.ga(
         100, # popsize
-        100, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        10000, # generations 
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
@@ -380,17 +382,17 @@ end
     
     result_classical = CLGA.ga(
         100, # popsize
-        500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        10000, # generations 
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
          CLGA.GA_TYPE_CLASSIC, # classical FPGA
          elitism = 1,
-         initialpopulation = result
+         initialpopulation = result.population
     )
-    best = result_classical[1]
+    best = result_classical.best
     
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
@@ -414,30 +416,22 @@ end
     )
     result = CLGA.ga(
         100, # popsize
-        500, # generations 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        10000, # generations 
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
          CLGA.GA_TYPE_CLASSIC # classical selection
     )
     
-    best = result[1]
+    best = result.best
     @test best isa CLGA.Chromosome
     @test best.genes[1] > 2.0
     @test best.genes[1] < 5.0
     @test best.genes[2] > 1.0
     @test best.genes[2] < 4.0
 
-   
-    @test best isa CLGA.Chromosome
-    @test best.genes[1] > 3.0  # 3.141592
-    @test best.genes[1] < 3.3
-    @test best.genes[2] > 2.6  # 2.71828
-    @test best.genes[2] < 2.9
-
-    @info best
 end
 
 
@@ -454,8 +448,8 @@ end
     result = CLGA.hybridga(
         100, # popsize
         [500, 500], # generations (500 for kmeans, 500 for classical) 
-        [-100.0, -100.0], #lower
-        [100.0, 100.0],   #upper
+        [-10.0, -10.0], #lower
+        [10.0, 10.0],   #upper
          costfn, #costfunction 
          crossfn, #crossoverfunction 
          mutatefn, #mutation function 
