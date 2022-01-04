@@ -15,6 +15,12 @@ mutable struct Chromosome
     clusterid::Int
 end
 
+struct GAResult 
+    population::Array{Chromosome, 1}
+    best::Chromosome
+    generations::Int 
+end
+
 # Create chromosome with given genes, cost of Infinity,
 # and cluster id of -1.
 function Chromosome(genes::Array{Float64, 1})
@@ -268,7 +274,13 @@ end
 function ga(
     popsize::Int, generations::Int, lower::Array{Float64, 1}, upper::Array{Float64, 1},
     costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; 
-    elitism::Int = 0, initialpopulation = nothing, verbose = true)
+    elitism::Int = 0, initialpopulation = nothing, verbose = true, targetcost = nothing)
+
+    generations_done = 0
+
+    if isnothing(targetcost)
+        targetcost = generations
+    end
 
     if isnothing(initialpopulation)
         population = randompopulation(popsize, lower, upper)
@@ -281,11 +293,20 @@ function ga(
         if verbose 
             @info g population[1].cost 
         end
+        bestcost = costfn(population[1].genes)
+        generations_done = generations_done + 1
+        if bestcost < targetcost  
+            break
+        end 
     end 
 
     calculatefitness(population, costfn)
     sort!(population, by = ch -> ch.cost)
-    return population
+    return GAResult(
+        population,
+        population[1],
+        generations_done
+    )
 end
 
 
