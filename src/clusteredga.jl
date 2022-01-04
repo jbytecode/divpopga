@@ -258,15 +258,17 @@ function generation(
     
     for _ in (elitism + 1):popsize 
         father, mother = selectfn(population)
-        offspring = mutatefn(crossfn(father, mother))
+        offspring = crossfn(father, mother) |> mutatefn
         push!(newpop, offspring)
     end
+
     return newpop
 end
 
 function ga(
     popsize::Int, generations::Int, lower::Array{Float64, 1}, upper::Array{Float64, 1},
-    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; elitism::Int = 0, initialpopulation = nothing)
+    costfn::Function, crossfn::Function, mutatefn::Function, gatype::Int; 
+    elitism::Int = 0, initialpopulation = nothing, verbose = true)
 
     if isnothing(initialpopulation)
         population = randompopulation(popsize, lower, upper)
@@ -274,8 +276,11 @@ function ga(
         population = initialpopulation
     end 
     
-    for _ in 1:generations 
+    for g in 1:generations 
         population = generation(population, costfn, crossfn, mutatefn, gatype, elitism = elitism)
+        if verbose 
+            @info g population[1].cost 
+        end
     end 
 
     calculatefitness(population, costfn)
