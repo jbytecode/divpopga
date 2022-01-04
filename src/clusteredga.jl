@@ -126,10 +126,12 @@ end
 
 
 function randommutation(lower::Array{Float64, 1}, upper::Array{Float64, 1}, mutationprob::Float64, ch::Chromosome)::Chromosome
-    newgenes = copy(ch.genes)
+    newgenes = zeros(Float64, length(ch.genes))
     for i in 1:length(newgenes)
         if rand() < mutationprob
             newgenes[i] = lower[i] + rand() * (upper[i] - lower[i])
+        else
+            newgenes[i] = ch.genes[i]
         end 
     end 
     return Chromosome(newgenes)
